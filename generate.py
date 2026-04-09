@@ -276,6 +276,11 @@ def dll_sort_key(name):
     return (priority.get(name, 50), name.lower())
 
 total = 0
+REPO_FORMATS = {
+    "react95": "png", "alexh": "png", "xpicons": "png",
+    "eggy115": "ico", "trapd00r": "ico", "bartekl1": "ico", "visnalize": "ico",
+}
+
 repo_counts = {}
 for vid in data:
     for sec in data[vid]:
@@ -435,6 +440,11 @@ html = f'''<!DOCTYPE html>
     <button class="toolbar-btn" data-size="32" onclick="setSizeFilter('32',this)">32x32</button>
     <button class="toolbar-btn" data-size="48" onclick="setSizeFilter('48',this)">48x48</button>
     <span class="sep">|</span>
+    <label>Format:</label>
+    <button class="toolbar-btn active" data-fmt="all" onclick="setFmtFilter('all',this)">All</button>
+    <button class="toolbar-btn" data-fmt="ico" onclick="setFmtFilter('ico',this)">.ico</button>
+    <button class="toolbar-btn" data-fmt="png" onclick="setFmtFilter('png',this)">.png</button>
+    <span class="sep">|</span>
     <label>View:</label>
     <button class="toolbar-btn active" data-view="small" onclick="setView('small',this)">Small</button>
     <button class="toolbar-btn" data-view="medium" onclick="setView('medium',this)">Medium</button>
@@ -487,8 +497,9 @@ for vid, meta in active:
                 cell_width = 80
                 size_badge = ''
 
+            fmt = REPO_FORMATS.get(repo_key, "ico")
             list_meta = f'<span class="list-meta">{esc_sec}</span>'
-            html += f'      <div class="icon-cell" style="width:{cell_width}px" data-repo="{repo_key}" data-url="{esc_url}" data-fname="{esc_fname}" data-dll="{esc_sec}" data-size="{size_px or 0}" onclick="showMenu(event,this)"><img src="{esc_url}" alt="{esc_label}" {size_attr} loading="lazy"><span>{esc_label}</span>{size_badge}{list_meta}</div>\n'
+            html += f'      <div class="icon-cell" style="width:{cell_width}px" data-repo="{repo_key}" data-url="{esc_url}" data-fname="{esc_fname}" data-dll="{esc_sec}" data-size="{size_px or 0}" data-fmt="{fmt}" onclick="showMenu(event,this)"><img src="{esc_url}" alt="{esc_label}" {size_attr} loading="lazy"><span>{esc_label}</span>{size_badge}{list_meta}</div>\n'
 
         html += '    </div>\n  </div>\n'
 
@@ -497,8 +508,8 @@ for vid, meta in active:
     <span class="statusbar-cell">{meta['name']}</span>
   </div>
   <div class="back-to-top"><a href="#{active[0][0]}">&#9650; Back to top</a></div>
+  <hr>
 </div>
-<hr>
 '''
 
 html += f'''
@@ -514,6 +525,7 @@ var repoUrls={repo_urls_js};
 var repoNames={repo_names_js};
 var activeMenu=null;
 var currentSizeFilter='all';
+var currentFmtFilter='all';
 var totalIcons={total};
 
 // === TOAST ===
@@ -564,6 +576,15 @@ function setSizeFilter(size,btn){{
   updateHash();
 }}
 
+// === FORMAT FILTER ===
+function setFmtFilter(fmt,btn){{
+  currentFmtFilter=fmt;
+  document.querySelectorAll('[data-fmt]').forEach(function(b){{if(b.tagName==='BUTTON')b.classList.remove('active')}});
+  btn.classList.add('active');
+  applyFilters();
+  updateHash();
+}}
+
 // === VIEW MODE ===
 function setView(mode,btn){{
   document.body.classList.remove('view-small','view-medium','view-list');
@@ -577,6 +598,7 @@ function setView(mode,btn){{
 function applyFilters(){{
   var q=document.getElementById('search').value.trim();
   var sf=currentSizeFilter;
+  var ff=currentFmtFilter;
   var tv=0;
   document.querySelectorAll('.version-section').forEach(function(sec){{
     var sv=0;
@@ -587,19 +609,24 @@ function applyFilters(){{
         var matchText=!q||fuzzyMatch(q,text);
         var sz=c.getAttribute('data-size')||'0';
         var matchSize=(sf==='all')||(sz===sf)||(sf==='32'&&sz==='0');
-        if(matchText&&matchSize){{c.classList.remove('hidden');dv++}}else{{c.classList.add('hidden')}}
+        var ft=c.getAttribute('data-fmt')||'ico';
+        var matchFmt=(ff==='all')||(ft===ff);
+        if(matchText&&matchSize&&matchFmt){{c.classList.remove('hidden');dv++}}else{{c.classList.add('hidden')}}
       }});
-      if(dv===0&&(q||sf!=='all'))ds.classList.add('hidden');else ds.classList.remove('hidden');
+      var anyFilter=q||sf!=='all'||ff!=='all';
+      if(dv===0&&anyFilter)ds.classList.add('hidden');else ds.classList.remove('hidden');
       sv+=dv;
     }});
     tv+=sv;
     var sb=sec.querySelector('.statusbar-cell');if(sb)sb.textContent=sv.toLocaleString()+' object(s)';
-    if(sv===0&&(q||sf!=='all'))sec.classList.add('hidden');else sec.classList.remove('hidden');
+    var anyFilter=q||sf!=='all'||ff!=='all';
+    if(sv===0&&anyFilter)sec.classList.add('hidden');else sec.classList.remove('hidden');
   }});
   var info=document.getElementById('search-info');
   var parts=[];
   if(q)parts.push('"'+q+'"');
   if(sf!=='all')parts.push(sf+'x'+sf);
+  if(ff!=='all')parts.push('.'+ff);
   info.textContent=parts.length?tv.toLocaleString()+' of '+totalIcons.toLocaleString()+' icons'+(parts.length?' matching '+parts.join(', '):''):'';
 }}
 
@@ -607,12 +634,14 @@ function applyFilters(){{
 function updateHash(){{
   var q=document.getElementById('search').value.trim();
   var sf=currentSizeFilter;
+  var ff=currentFmtFilter;
   var view='small';
   if(document.body.classList.contains('view-medium'))view='medium';
   if(document.body.classList.contains('view-list'))view='list';
   var parts=[];
   if(q)parts.push('q='+encodeURIComponent(q));
   if(sf!=='all')parts.push('size='+sf);
+  if(ff!=='all')parts.push('fmt='+ff);
   if(view!=='small')parts.push('view='+view);
   var hash=parts.length?'#'+parts.join('&'):'';
   if(window.location.hash!==hash)history.replaceState(null,null,hash||window.location.pathname);
@@ -627,6 +656,10 @@ function loadFromHash(){{
   if(params.size){{
     currentSizeFilter=params.size;
     document.querySelectorAll('[data-size]').forEach(function(b){{if(b.tagName==='BUTTON'){{b.classList.remove('active');if(b.getAttribute('data-size')===params.size)b.classList.add('active')}}}});
+  }}
+  if(params.fmt){{
+    currentFmtFilter=params.fmt;
+    document.querySelectorAll('[data-fmt]').forEach(function(b){{if(b.tagName==='BUTTON'){{b.classList.remove('active');if(b.getAttribute('data-fmt')===params.fmt)b.classList.add('active')}}}});
   }}
   if(params.view&&params.view!=='small'){{
     document.body.classList.add('view-'+params.view);
