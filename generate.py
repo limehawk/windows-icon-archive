@@ -114,27 +114,40 @@ with open("/tmp/react95_icons.txt") as f:
             r95_index[key] = []
         r95_index[key].append((png, f"{w}x{h}", w, depth))
 
-# DLL display names for React95 ICO sources
+# Known Win95 DLLs/EXEs — anything not in this dict goes to "Miscellaneous"
 DLL_NAMES = {
-    "shell32": "shell32.dll", "progman": "progman.exe", "mmsys": "mmsys.cpl",
-    "explorer": "explorer.exe", "user": "user.exe", "main": "main.cpl",
-    "comdlg32": "comdlg32.dll", "comctl32": "comctl32.dll", "regedit": "regedit.exe",
-    "mplayer": "mplayer.exe", "mplayer_1": "mplayer.exe",
-    "notepad": "notepad.exe", "winfile": "winfile.exe",
-    "sndvol32": "sndvol32.exe", "sndrec32": "sndrec32.exe",
+    # Core system
+    "shell32": "shell32.dll", "user": "user.exe", "explorer": "explorer.exe",
+    "progman": "progman.exe", "main": "main.cpl",
+    # Common dialogs & controls
+    "comdlg32": "comdlg32.dll", "comctl32": "comctl32.dll",
+    # Multimedia
+    "mmsys": "mmsys.cpl", "mplayer": "mplayer.exe", "mplayer_1": "mplayer.exe",
+    "sndvol32": "sndvol32.exe", "sndrec32": "sndrec32.exe", "cdplayer": "cdplayer.exe",
+    "quartz": "quartz.dll",
+    # Accessories
+    "notepad": "notepad.exe", "winfile": "winfile.exe", "pbrush": "pbrush.exe",
+    "charmap": "charmap.exe", "regedit": "regedit.exe", "defrag": "defrag.exe",
+    "drvspace": "drvspace.exe",
+    # Games
     "sol": "sol.exe", "freecell": "freecell.exe", "mshearts": "mshearts.exe",
-    "winmine": "winmine.exe", "cdplayer": "cdplayer.exe",
+    "winmine": "winmine.exe",
+    # Internet/networking
     "inetcpl": "inetcpl.cpl", "mshtml": "mshtml.dll", "shdocvw": "shdocvw.dll",
-    "syncui": "syncui.dll", "systray": "systray.exe", "access": "access.cpl",
-    "gcdef": "gcdef.dll", "mailnews": "mailnews.dll", "wmsui32": "wmsui32.dll",
-    "rsrcmtr": "rsrcmtr.exe", "wab32": "wab32.dll", "quartz": "quartz.dll",
-    "defrag": "defrag.exe", "drvspace": "drvspace.exe", "rnaapp": "rnaapp.exe",
-    "rnaui": "rnaui.dll", "rasapi32": "rasapi32.dll", "directcc": "directcc.exe",
-    "confcp": "confcp.cpl", "lights": "lights.exe", "msrating": "msrating.dll",
-    "pbrush": "pbrush.exe", "charmap": "charmap.exe", "calc": "calc.exe",
-    "appwiz": "appwiz.cpl", "desk": "desk.cpl", "timedate": "timedate.cpl",
-    "joy": "joy.cpl", "powercfg": "powercfg.cpl", "intl": "intl.cpl",
-    "password": "password.cpl", "awfxex32": "awfxex32.exe", "awfxcg32": "awfxcg32.dll",
+    "rnaapp": "rnaapp.exe", "rnaui": "rnaui.dll", "rasapi32": "rasapi32.dll",
+    "directcc": "directcc.exe", "lights": "lights.exe",
+    # Mail/messaging
+    "mailnews": "mailnews.dll", "wab32": "wab32.dll", "wmsui32": "wmsui32.dll",
+    # Control panel
+    "access": "access.cpl", "appwiz": "appwiz.cpl", "desk": "desk.cpl",
+    "timedate": "timedate.cpl", "joy": "joy.cpl", "powercfg": "powercfg.cpl",
+    "intl": "intl.cpl", "password": "password.cpl", "confcp": "confcp.cpl",
+    "msrating": "msrating.dll",
+    # System utilities
+    "gcdef": "gcdef.dll", "syncui": "syncui.dll", "systray": "systray.exe",
+    "rsrcmtr": "rsrcmtr.exe",
+    # Fax
+    "awfxex32": "awfxex32.exe", "awfxcg32": "awfxcg32.dll",
     "awfext32": "awfext32.dll", "awschd32": "awschd32.exe", "awsnto32": "awsnto32.exe",
 }
 
@@ -144,11 +157,11 @@ with open("/tmp/react95_ico_src.txt") as f:
         ico_fname = path.split("/")[-1]
         base = ico_fname.replace(".ico", "")
 
-        # Determine DLL source
+        # Determine DLL source — unknown sources go to Miscellaneous
         m = re.match(r'^(.+?)(?:_(\d+))?$', base)
         if not m: continue
         dll_raw = m.group(1)
-        dll_name = DLL_NAMES.get(dll_raw, dll_raw)
+        dll_name = DLL_NAMES.get(dll_raw, "Miscellaneous")
 
         # Build PNG lookup key
         png_base = base[0].upper() + base[1:]
@@ -272,6 +285,7 @@ def dll_sort_key(name):
         "System Icons": 5, "System Icons (PNG)": 6,
         "XP": 7, "Longhorn Icons": 8, "Whistler": 9, "Service Pack 2 Beta": 10,
         "Classic Software & Games": 0,
+        "Miscellaneous": 99,
     }
     return (priority.get(name, 50), name.lower())
 
