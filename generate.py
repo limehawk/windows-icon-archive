@@ -302,22 +302,27 @@ CSS = '''body {
 a { color: #00007f; } a:visited { color: #551a8b; } a:hover { color: #f00; }
 hr { border:none; border-top:1px solid #808080; border-bottom:1px solid #fff; margin:12px 0; }
 .page { max-width:1100px; margin:0 auto; padding:8px 16px 40px; }
+
+/* Sticky toolbar */
+.toolbar { position:sticky; top:0; z-index:100; background:#c0c0c0; padding:6px 0 4px; border-bottom:2px outset #dfdfdf; margin:0 -16px; padding-left:16px; padding-right:16px; }
+
 .titlebar { background:linear-gradient(90deg,#000080,#1084d0); color:#fff; font-weight:bold; font-size:14px; padding:3px 6px; display:flex; justify-content:space-between; align-items:center; }
 .titlebar-buttons { display:flex; gap:2px; }
 .titlebar-btn { background:#c0c0c0; border:1px outset #fff; width:16px; height:14px; font-size:9px; line-height:14px; text-align:center; color:#000; cursor:default; }
 .window { border:2px outset #dfdfdf; background:#c0c0c0; margin-bottom:16px; }
 .window-body { padding:8px 12px; border:2px inset #808080; margin:2px; }
 h1 { font-size:22px; margin:0 0 4px; font-weight:bold; }
-.search-bar { display:flex; gap:4px; align-items:center; margin:8px 0; }
+.search-bar { display:flex; gap:4px; align-items:center; margin:4px 0; }
 .search-bar label { font-weight:bold; white-space:nowrap; }
 .search-bar input { flex:1; font-family:inherit; font-size:13px; padding:3px 4px; border:2px inset #808080; background:#fff; outline:none; }
-.search-bar button { font-family:inherit; font-size:12px; padding:3px 12px; border:2px outset #dfdfdf; background:#c0c0c0; cursor:pointer; }
-.search-bar button:active { border-style:inset; }
-.search-info { font-size:11px; color:#808080; margin:2px 0 4px; }
-.filters { margin:6px 0; font-size:12px; display:flex; gap:4px; flex-wrap:wrap; align-items:center; }
-.filters label { font-weight:bold; }
-.filters button { font-family:inherit; font-size:11px; padding:2px 8px; border:2px outset #dfdfdf; background:#c0c0c0; cursor:pointer; }
-.filters button:active,.filters button.active { border-style:inset; background:#a0a0a0; }
+.search-bar button, .toolbar-btn { font-family:inherit; font-size:11px; padding:2px 8px; border:2px outset #dfdfdf; background:#c0c0c0; cursor:pointer; }
+.search-bar button:active, .toolbar-btn:active { border-style:inset; }
+.toolbar-btn.active { border-style:inset; background:#a0a0a0; }
+.search-info { font-size:11px; color:#808080; margin:1px 0; }
+.toolbar-row { display:flex; gap:4px; flex-wrap:wrap; align-items:center; margin:3px 0; font-size:11px; }
+.toolbar-row label { font-weight:bold; margin-right:2px; }
+.toolbar-row .sep { color:#808080; margin:0 4px; }
+
 .nav { background:#fff; border:2px inset #808080; padding:6px 10px; margin:8px 0; display:flex; flex-wrap:wrap; gap:3px 12px; align-items:center; }
 .nav a { font-weight:bold; text-decoration:none; padding:1px 4px; font-size:12px; }
 .nav a:hover { text-decoration:underline; }
@@ -325,14 +330,39 @@ h1 { font-size:22px; margin:0 0 4px; font-weight:bold; }
 .sources a { font-size:11px; }
 .version-header { padding:4px 8px; color:#fff; font-weight:bold; font-size:15px; margin-top:20px; display:flex; justify-content:space-between; align-items:center; }
 .version-header small { font-weight:normal; font-size:12px; opacity:0.85; }
-.dll-header { background:#e8e8e8; border:1px solid #808080; border-bottom:none; padding:3px 8px; font-size:12px; font-weight:bold; color:#333; display:flex; justify-content:space-between; align-items:center; margin-top:4px; }
+
+/* Collapsible DLL sections */
+.dll-header { background:#e8e8e8; border:1px solid #808080; border-bottom:none; padding:3px 8px; font-size:12px; font-weight:bold; color:#333; display:flex; justify-content:space-between; align-items:center; margin-top:4px; cursor:pointer; user-select:none; }
+.dll-header:hover { background:#d8d8d8; }
 .dll-header small { font-weight:normal; color:#808080; font-size:11px; }
 .dll-header code { background:#fff; border:1px solid #aaa; padding:0 4px; font-size:11px; font-family:"Fixedsys","Courier New",monospace; }
+.dll-header .toggle { font-size:10px; margin-right:4px; display:inline-block; transition:transform .15s; }
+.dll-section.collapsed .icon-grid { display:none; }
+.dll-section.collapsed .dll-header .toggle { transform:rotate(-90deg); }
+
 .icon-grid { display:flex; flex-wrap:wrap; gap:0; background:#fff; border:2px inset #808080; padding:8px; }
-.icon-cell { text-align:center; padding:6px 4px; cursor:default; border:1px solid transparent; word-break:break-all; overflow:hidden; position:relative; }
+
+/* Grid density modes */
+.icon-cell { text-align:center; padding:6px 4px; cursor:default; border:1px solid transparent; word-break:break-all; overflow:hidden; position:relative; width:80px; }
 .icon-cell:hover { background:#000080; color:#fff; border:1px dotted #000; }
 .icon-cell img { display:block; margin:0 auto 3px; image-rendering:pixelated; pointer-events:none; }
 .icon-cell span { font-size:10px; line-height:1.2; display:block; max-height:2.4em; overflow:hidden; pointer-events:none; }
+
+/* Medium density */
+body.view-medium .icon-cell { width:120px; padding:8px 6px; }
+body.view-medium .icon-cell img { width:48px !important; height:48px !important; }
+body.view-medium .icon-cell span { max-height:3.6em; font-size:11px; }
+
+/* List view */
+body.view-list .icon-grid { flex-direction:column; }
+body.view-list .icon-cell { width:100% !important; display:flex; align-items:center; gap:8px; text-align:left; padding:3px 8px; box-sizing:border-box; }
+body.view-list .icon-cell img { margin:0; flex-shrink:0; width:16px !important; height:16px !important; }
+body.view-list .icon-cell span { max-height:none; flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; word-break:normal; }
+body.view-list .icon-cell .size-badge { flex-shrink:0; width:44px; text-align:right; }
+body.view-list .icon-cell .list-meta { font-size:10px; color:#808080; flex-shrink:0; min-width:100px; text-align:right; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+body.view-list .icon-cell:hover .list-meta { color:#c0c0c0; }
+body:not(.view-list) .list-meta { display:none; }
+
 .statusbar { background:#c0c0c0; border-top:1px solid #808080; padding:3px 8px; font-size:12px; display:flex; justify-content:space-between; }
 .statusbar-cell { border:1px inset #808080; padding:1px 6px; background:#c0c0c0; }
 .center { text-align:center; }
@@ -347,10 +377,20 @@ h1 { font-size:22px; margin:0 0 4px; font-weight:bold; }
 .ctx-menu .ctx-sep { border-top:1px solid #808080; border-bottom:1px solid #fff; margin:2px 0; }
 .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#000080; color:#fff; padding:6px 16px; border:2px outset #4040c0; font-family:inherit; font-size:12px; z-index:10000; opacity:0; transition:opacity .2s; pointer-events:none; }
 .toast.show { opacity:1; }
-.size-badge { font-size:9px; color:#808080; display:block; }
+.size-badge { font-size:9px; color:#808080; display:block; pointer-events:none; }
 .icon-cell:hover .size-badge { color:#c0c0c0; }
-@media(max-width:600px) { .icon-cell img { max-width:48px; } .page { padding:4px 8px 20px; } }
+@media(max-width:600px) { .icon-cell img { max-width:48px; } .page { padding:4px 8px 20px; } .toolbar { margin:0 -8px; padding-left:8px; padding-right:8px; } }
 '''
+
+nav_links = ""
+for vid, meta in active:
+    vcount = sum(len(icons) for icons in data[vid].values())
+    nav_links += f'      <a href="#{vid}">&#9654; {meta["name"]} ({vcount:,})</a>\n'
+
+sources_html = " &middot; ".join(
+    f'<a href="{REPOS[k]["url"]}">{REPOS[k]["name"]}</a> ({c:,})'
+    for k, c in sorted(repo_counts.items(), key=lambda x: -x[1])
+)
 
 html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -375,28 +415,36 @@ html = f'''<!DOCTYPE html>
     <h1>Windows Icon Archive</h1>
     <p>Icons extracted from Windows system files and classic software.<br>
     {total:,} icons from <b>Windows 95</b> through <b>Windows 11</b>, organized by source DLL. Served via jsDelivr CDN.</p>
-
-    <div class="search-bar">
-      <label for="search">Find:</label>
-      <input type="text" id="search" placeholder="Search {total:,} icons..." autofocus>
-      <button onclick="document.getElementById('search').value='';filterIcons('');">Clear</button>
-    </div>
-    <div class="search-info" id="search-info"></div>
-
     <div class="nav">
       <span>Go&nbsp;to:</span>
+{nav_links}    </div>
+    <div class="sources"><b>Sources:</b> {sources_html}</div>
+  </div>
+</div>
+
+<div class="toolbar" id="toolbar">
+  <div class="search-bar">
+    <label for="search">Find:</label>
+    <input type="text" id="search" placeholder="Search {total:,} icons...">
+    <button onclick="document.getElementById('search').value='';applyFilters();">Clear</button>
+  </div>
+  <div class="toolbar-row">
+    <label>Size:</label>
+    <button class="toolbar-btn active" data-size="all" onclick="setSizeFilter('all',this)">All</button>
+    <button class="toolbar-btn" data-size="16" onclick="setSizeFilter('16',this)">16x16</button>
+    <button class="toolbar-btn" data-size="32" onclick="setSizeFilter('32',this)">32x32</button>
+    <button class="toolbar-btn" data-size="48" onclick="setSizeFilter('48',this)">48x48</button>
+    <span class="sep">|</span>
+    <label>View:</label>
+    <button class="toolbar-btn active" data-view="small" onclick="setView('small',this)">Small</button>
+    <button class="toolbar-btn" data-view="medium" onclick="setView('medium',this)">Medium</button>
+    <button class="toolbar-btn" data-view="list" onclick="setView('list',this)">List</button>
+  </div>
+  <div class="search-info" id="search-info"></div>
+</div>
+
+<hr>
 '''
-
-for vid, meta in active:
-    vcount = sum(len(icons) for icons in data[vid].values())
-    html += f'      <a href="#{vid}">&#9654; {meta["name"]} ({vcount:,})</a>\n'
-
-html += '    </div>\n    <div class="sources"><b>Sources:</b> '
-html += " &middot; ".join(
-    f'<a href="{REPOS[k]["url"]}">{REPOS[k]["name"]}</a> ({c:,})'
-    for k, c in sorted(repo_counts.items(), key=lambda x: -x[1])
-)
-html += '</div>\n  </div>\n</div>\n<hr>\n'
 
 # Build sections
 for vid, meta in active:
@@ -416,8 +464,8 @@ for vid, meta in active:
         icons = secs[sec]
         sec_id = f"{vid}-{re.sub(r'[^a-z0-9]', '-', sec.lower())}"
         html += f'''  <div class="dll-section" id="{sec_id}">
-    <div class="dll-header">
-      <span><code>{htmlmod.escape(sec)}</code></span>
+    <div class="dll-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span><span class="toggle">&#9660;</span><code>{htmlmod.escape(sec)}</code></span>
       <small>{len(icons)} icons</small>
     </div>
     <div class="icon-grid">
@@ -439,7 +487,8 @@ for vid, meta in active:
                 cell_width = 80
                 size_badge = ''
 
-            html += f'      <div class="icon-cell" style="width:{cell_width}px" data-repo="{repo_key}" data-url="{esc_url}" data-fname="{esc_fname}" data-dll="{esc_sec}" data-size="{size_px or 0}" onclick="showMenu(event,this)"><img src="{esc_url}" alt="{esc_label}" {size_attr} loading="lazy"><span>{esc_label}</span>{size_badge}</div>\n'
+            list_meta = f'<span class="list-meta">{esc_sec}</span>'
+            html += f'      <div class="icon-cell" style="width:{cell_width}px" data-repo="{repo_key}" data-url="{esc_url}" data-fname="{esc_fname}" data-dll="{esc_sec}" data-size="{size_px or 0}" onclick="showMenu(event,this)"><img src="{esc_url}" alt="{esc_label}" {size_attr} loading="lazy"><span>{esc_label}</span>{size_badge}{list_meta}</div>\n'
 
         html += '    </div>\n  </div>\n'
 
@@ -464,7 +513,13 @@ html += f'''
 var repoUrls={repo_urls_js};
 var repoNames={repo_names_js};
 var activeMenu=null;
+var currentSizeFilter='all';
+var totalIcons={total};
+
+// === TOAST ===
 function showToast(m){{var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){{t.classList.remove('show')}},1500)}}
+
+// === CONTEXT MENU ===
 function closeMenu(){{if(activeMenu){{activeMenu.remove();activeMenu=null}}}}
 function showMenu(e,cell){{
   e.stopPropagation();closeMenu();
@@ -496,28 +551,95 @@ function showMenu(e,cell){{
 }}
 document.addEventListener('click',closeMenu);
 document.addEventListener('keydown',function(e){{if(e.key==='Escape')closeMenu()}});
+
+// === FUZZY SEARCH ===
 function fuzzyMatch(q,t){{q=q.toLowerCase();t=t.toLowerCase();if(!q.length)return true;var qi=0;for(var ti=0;ti<t.length&&qi<q.length;ti++){{if(t[ti]===q[qi])qi++}}return qi===q.length}}
-var searchInput=document.getElementById('search'),searchInfo=document.getElementById('search-info'),totalIcons={total};
-function filterIcons(q){{
-  q=q.trim();var tv=0;
+
+// === SIZE FILTER ===
+function setSizeFilter(size,btn){{
+  currentSizeFilter=size;
+  document.querySelectorAll('[data-size]').forEach(function(b){{if(b.tagName==='BUTTON')b.classList.remove('active')}});
+  btn.classList.add('active');
+  applyFilters();
+  updateHash();
+}}
+
+// === VIEW MODE ===
+function setView(mode,btn){{
+  document.body.classList.remove('view-small','view-medium','view-list');
+  if(mode!=='small')document.body.classList.add('view-'+mode);
+  document.querySelectorAll('[data-view]').forEach(function(b){{b.classList.remove('active')}});
+  btn.classList.add('active');
+  updateHash();
+}}
+
+// === COMBINED FILTER ===
+function applyFilters(){{
+  var q=document.getElementById('search').value.trim();
+  var sf=currentSizeFilter;
+  var tv=0;
   document.querySelectorAll('.version-section').forEach(function(sec){{
     var sv=0;
     sec.querySelectorAll('.dll-section').forEach(function(ds){{
       var dv=0;
       ds.querySelectorAll('.icon-cell').forEach(function(c){{
-        var t=c.querySelector('span').textContent+' '+c.querySelector('img').alt+' '+(c.getAttribute('data-dll')||'');
-        if(!q||fuzzyMatch(q,t)){{c.classList.remove('hidden');dv++}}else{{c.classList.add('hidden')}}
+        var text=c.querySelector('span').textContent+' '+c.querySelector('img').alt+' '+(c.getAttribute('data-dll')||'');
+        var matchText=!q||fuzzyMatch(q,text);
+        var sz=c.getAttribute('data-size')||'0';
+        var matchSize=(sf==='all')||(sz===sf)||(sf==='32'&&sz==='0');
+        if(matchText&&matchSize){{c.classList.remove('hidden');dv++}}else{{c.classList.add('hidden')}}
       }});
-      if(dv===0&&q)ds.classList.add('hidden');else ds.classList.remove('hidden');
+      if(dv===0&&(q||sf!=='all'))ds.classList.add('hidden');else ds.classList.remove('hidden');
       sv+=dv;
     }});
     tv+=sv;
     var sb=sec.querySelector('.statusbar-cell');if(sb)sb.textContent=sv.toLocaleString()+' object(s)';
-    if(sv===0&&q)sec.classList.add('hidden');else sec.classList.remove('hidden');
+    if(sv===0&&(q||sf!=='all'))sec.classList.add('hidden');else sec.classList.remove('hidden');
   }});
-  searchInfo.textContent=q?tv.toLocaleString()+' of '+totalIcons.toLocaleString()+' icons match "'+q+'"':'';
+  var info=document.getElementById('search-info');
+  var parts=[];
+  if(q)parts.push('"'+q+'"');
+  if(sf!=='all')parts.push(sf+'x'+sf);
+  info.textContent=parts.length?tv.toLocaleString()+' of '+totalIcons.toLocaleString()+' icons'+(parts.length?' matching '+parts.join(', '):''):'';
 }}
-var dt;searchInput.addEventListener('input',function(){{clearTimeout(dt);var v=this.value;dt=setTimeout(function(){{filterIcons(v)}},200)}});
+
+// === URL HASH ROUTING ===
+function updateHash(){{
+  var q=document.getElementById('search').value.trim();
+  var sf=currentSizeFilter;
+  var view='small';
+  if(document.body.classList.contains('view-medium'))view='medium';
+  if(document.body.classList.contains('view-list'))view='list';
+  var parts=[];
+  if(q)parts.push('q='+encodeURIComponent(q));
+  if(sf!=='all')parts.push('size='+sf);
+  if(view!=='small')parts.push('view='+view);
+  var hash=parts.length?'#'+parts.join('&'):'';
+  if(window.location.hash!==hash)history.replaceState(null,null,hash||window.location.pathname);
+}}
+
+function loadFromHash(){{
+  var h=window.location.hash.replace('#','');
+  if(!h)return;
+  var params={{}};
+  h.split('&').forEach(function(p){{var kv=p.split('=');if(kv.length===2)params[kv[0]]=decodeURIComponent(kv[1])}});
+  if(params.q){{document.getElementById('search').value=params.q}}
+  if(params.size){{
+    currentSizeFilter=params.size;
+    document.querySelectorAll('[data-size]').forEach(function(b){{if(b.tagName==='BUTTON'){{b.classList.remove('active');if(b.getAttribute('data-size')===params.size)b.classList.add('active')}}}});
+  }}
+  if(params.view&&params.view!=='small'){{
+    document.body.classList.add('view-'+params.view);
+    document.querySelectorAll('[data-view]').forEach(function(b){{b.classList.remove('active');if(b.getAttribute('data-view')===params.view)b.classList.add('active')}});
+  }}
+  applyFilters();
+}}
+
+// === INIT ===
+var dt;
+document.getElementById('search').addEventListener('input',function(){{clearTimeout(dt);var v=this;dt=setTimeout(function(){{applyFilters();updateHash()}},200)}});
+window.addEventListener('hashchange',loadFromHash);
+loadFromHash();
 </script>
 </body>
 </html>
