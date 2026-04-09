@@ -411,10 +411,13 @@ body:not(.view-list) .list-meta { display:none; }
 .version-window.hidden { display:none; }
 .dll-section.hidden { display:none; }
 
-/* Context menu — proper 98.css window */
-.ctx-menu { position:fixed; z-index:9999; min-width:220px; }
-.ctx-menu .title-bar { cursor:default; }
-.ctx-menu .window-body { padding:2px; margin:0; }
+/* Context menu — Win98 right-click style raised panel */
+.ctx-menu {
+  position:fixed; z-index:9999; min-width:200px;
+  background:var(--surface);
+  box-shadow: var(--border-raised-outer), var(--border-raised-inner);
+  padding:2px;
+}
 .ctx-item { padding:4px 16px 4px 8px; cursor:pointer; white-space:nowrap; }
 .ctx-item:hover { background:var(--dialog-blue); color:#fff; }
 .ctx-sep { border-top:1px solid #808080; border-bottom:1px solid #fff; margin:2px 0; }
@@ -619,25 +622,10 @@ function showMenu(e,cell){{
       fname=cell.getAttribute('data-fname'),dll=cell.getAttribute('data-dll'),
       label=(cell.querySelector('.icon-label')||cell.querySelector('span')).textContent;
 
-  // Build a proper 98.css window
+  // Win98 context menu — raised panel, no title bar
   var win=document.createElement('div');
-  win.className='window ctx-menu';
-
-  // Title bar with close button
-  var tb=document.createElement('div');tb.className='title-bar';
-  var tbt=document.createElement('div');tbt.className='title-bar-text';
-  tbt.textContent=(label||fname)+(dll?' \\u2014 '+dll:'');
-  var tbc=document.createElement('div');tbc.className='title-bar-controls';
-  var closeBtn=document.createElement('button');
-  closeBtn.setAttribute('aria-label','Close');
-  closeBtn.addEventListener('click',function(ev){{ev.stopPropagation();closeMenu()}});
-  tbc.appendChild(closeBtn);
-  tb.appendChild(tbt);tb.appendChild(tbc);
-  win.appendChild(tb);
-
-  // Window body with menu items
-  var body=document.createElement('div');body.className='window-body';
-  body.style.margin='2px';body.style.padding='2px';
+  win.className='ctx-menu';
+  var body=win; // items go directly in the menu div
 
   var items=[
     {{text:'Copy image URL',action:function(){{navigator.clipboard.writeText(url).then(function(){{showToast('URL copied!')}})}} }},
@@ -655,8 +643,6 @@ function showMenu(e,cell){{
     var r=document.createElement('div');r.className='ctx-item';r.innerHTML=it.text;
     r.addEventListener('click',function(ev){{ev.stopPropagation();closeMenu();it.action()}});body.appendChild(r);
   }});
-  win.appendChild(body);
-
   win.style.visibility='hidden';win.style.left='0';win.style.top='0';
   document.body.appendChild(win);activeMenu=win;
   var cx=e.clientX,cy=e.clientY;
