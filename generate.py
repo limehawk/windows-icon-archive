@@ -329,7 +329,7 @@ body {
 .page { max-width:1100px; margin:0 auto; padding:8px 16px 40px; }
 
 /* Sticky toolbar window — "always on top" */
-.toolbar-window { position:sticky; top:0; z-index:100; margin-bottom:8px; }
+.toolbar-window { position:sticky; top:0; z-index:100; margin-top:8px; margin-bottom:8px; }
 .toolbar-window .window-body { padding:4px 8px; }
 
 /* Search bar layout */
@@ -414,8 +414,10 @@ body:not(.view-list) .list-meta { display:none; }
 /* Context menu — Win98 right-click style raised panel */
 .ctx-menu {
   position:fixed; z-index:9999; min-width:200px;
-  background:var(--surface);
-  box-shadow: var(--border-raised-outer), var(--border-raised-inner);
+  background: silver;
+  border: 2px solid;
+  border-color: #dfdfdf #0a0a0a #0a0a0a #dfdfdf;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080, 2px 2px 4px rgba(0,0,0,.25);
   padding:2px;
 }
 .ctx-item { padding:4px 16px 4px 8px; cursor:pointer; white-space:nowrap; }
